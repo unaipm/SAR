@@ -11,7 +11,7 @@ USERS = ("sar", "sza")
 PASSWORDS = ("sar", "sza")
 
 class State:
-	Identification, Authentication, Main, Downloading, Uploading = range(5)
+	Identification, Main, Downloading, Uploading = range(5)
 
 def sendOK( s, params="" ):
 	s.sendall( ("OK{}\r\n".format( params )).encode( "ascii" ) )
@@ -34,11 +34,13 @@ def session( s ):
 			if separacion:
 				sendER( s , "04")
 			elif separacion == message.count("|"):
-				sendER( s , "03")
+				sendER( s , "04")
+			elif separacion != message[separacion:message.count("|")-1].count("|"):
+				sendER( s, "03")
 			else:
 				try:
-					user = USERS.index( message[4:(separacion-1)])
-					contraseña = PASSWORDS.index( message[(separacion+1):])
+					user = USERS.index( message[4:(message.count("|")-1)])
+					contraseña = PASSWORDS.index( message[(message.count("|")+1):])
 				except:
 					sendER( s , "06")
 				else:
