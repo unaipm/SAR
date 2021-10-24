@@ -26,31 +26,31 @@ def session( s ):
 		message = szasar.recvline( dialog ).decode( "ascii" )
 		if not message:
 			return
-
-        if message.startswith( szasar.Command.Autentificar ):
-            if( state != State.Identification ):
-                sendER( s , "01")
-                continue
-            if separacion = message.find("|"):
-                sendER( s , "04")
-            else if separacion == message.count("|"):
-                sendER( s , "03")
-            else:
-                try:
-                    usuario = USERS.index( message[4:(separacion-1)])
-                    contraseña = PASSWORDS.index( message[(separacion+1):])
-                except:
-                    sendER( s , "06")
-                else:
-                    sendOK( s )
-                    state = State.Main
+		if message.startswith( szasar.Command.Autentificar ):
+			if( state != State.Identification ):
+				sendER( s , "01")
+				continue
+			separacion = message.find("|")
+			if separacion:
+				sendER( s , "04")
+			elif separacion == message.count("|"):
+				sendER( s , "03")
+			else:
+				try:
+					user = USERS.index( message[4:(separacion-1)])
+					contraseña = PASSWORDS.index( message[(separacion+1):])
+				except:
+					sendER( s , "06")
+				else:
+					sendOK( s )
+				state = State.Main
 
 		elif message.startswith( szasar.Command.List ):
 			if state != State.Main:
 				sendER( s , "01" )
 				continue
-            else if message.find("|"):
-                sendER( s , "03")
+			elif message.find("|"):
+				sendER( s , "03")
 			try:
 				message = "OK"
 				for usuario in USERS[:]:
