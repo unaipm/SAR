@@ -1,5 +1,5 @@
 class Command:
-	Autentificar, List, Download, Download2, Upload, Upload2, Delete, Quit = ("AUTH", "LSUS", "DOWN", "DOW2", "UPLO", "UPL2", "DELE", "QUIT")
+	Autentificar, List, Download, Download2, Upload, Upload2, Delete, Quit = ("AUTH", "LSUS", "PHOT", "PHOT2", "UPLO", "UPL2", "DELE", "QUIT")
 
 def recvline( s, removeEOL = True ):
 	line = b''

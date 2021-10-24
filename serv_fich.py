@@ -4,7 +4,7 @@ import socket, sys, os, signal
 import szasar
 
 PORT = 6012
-FILES_PATH = "files"
+PHOTOS_PATH = "photos"
 MAX_FILE_SIZE = 10 * 1 << 20 # 10 MiB
 SPACE_MARGIN = 50 * 1 << 20  # 50 MiB
 USERS = ("anonimous", "sar", "sza")
@@ -56,8 +56,8 @@ def session( s ):
 				continue
 			try:
 				message = "OK\r\n"
-				for filename in os.listdir( FILES_PATH ):
-					filesize = os.path.getsize( os.path.join( FILES_PATH, filename ) )
+				for filename in os.listdir( PHOTOS_PATH ):
+					filesize = os.path.getsize( os.path.join( PHOTOS_PATH, filename ) )
 					message += "{}?{}\r\n".format( filename, filesize )
 				message += "\r\n"
 			except:
@@ -69,7 +69,7 @@ def session( s ):
 			if state != State.Main:
 				sendER( s )
 				continue
-			filename = os.path.join( FILES_PATH, message[4:] )
+			photo = os.path.join( PHOTOS_PATH, message[4:] )
 			try:
 				filesize = os.path.getsize( filename )
 			except:
@@ -105,7 +105,7 @@ def session( s ):
 			if filesize > MAX_FILE_SIZE:
 				sendER( s, 8 )
 				continue
-			svfs = os.statvfs( FILES_PATH )
+			svfs = os.statvfs( PHOTOS_PATH )
 			if filesize + SPACE_MARGIN > svfs.f_bsize * svfs.f_bavail:
 				sendER( s, 9 )
 				continue
@@ -118,7 +118,7 @@ def session( s ):
 				continue
 			state = State.Main
 			try:
-				with open( os.path.join( FILES_PATH, filename), "wb" ) as f:
+				with open( os.path.join( PHOTOS_PATH, filename), "wb" ) as f:
 					filedata = szasar.recvall( s, filesize )
 					f.write( filedata )
 			except:
@@ -134,7 +134,7 @@ def session( s ):
 				sendER( s, 7 )
 				continue
 			try:
-				os.remove( os.path.join( FILES_PATH, message[4:] ) )
+				os.remove( os.path.join( PHOTOS_PATH, message[4:] ) )
 			except:
 				sendER( s, 11 )
 			else:
