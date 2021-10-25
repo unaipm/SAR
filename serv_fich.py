@@ -4,13 +4,26 @@ import socket, sys, os, signal
 import szasar
 
 PORT = 6012
-PHOTOS_USERS = []
-PHOTOS = []
+PHOTOS_USERS = [[],[]]
 #MAX_FILE_SIZE = 10 * 1 << 20 # 10 MiB
 #SPACE_MARGIN = 50 * 1 << 20  # 50 MiB
 USERS = ("sar", "sza")
 PASSWORDS = ("sar", "sza")
 IDENTIFICADORES = "00000"
+class Photo(object):
+	def __init__(self, id, descripcion, tamano, foto):
+		self.id = id
+		self.descripcion = descripcion
+		self.tamano = tamano
+		self.foto = foto
+	def getID(self):
+		return self.id
+	def getDescripcion(self):
+		return self.descripcion
+	def getTamano(self):
+		return self.descripcion
+	def getFoto(self):
+		return self.foto
 
 class State:
 	Identification, Main, Downloading, Uploading = range(5)
@@ -24,7 +37,7 @@ def sendER( s, code ):
 def session( s ):
 	state = State.Identification
 	global IDENTIFICADORES
-
+	PHOTOS_USERS[2].append
 	while True:
 		message = szasar.recvline( dialog ).decode( "ascii" )
 		if not message:
@@ -77,7 +90,9 @@ def session( s ):
 					message = "OK"
 					us = USERS.index(message[4:])
 					for p in PHOTOS_USERS[us]:
-						message += "|{}".format( p )
+						i=p.getID()
+						d=p.getDescripcion()
+						message += "|{}{}".format( i, d )
 					message += "\r\n"
 				except:
 					sendER( s, "07" )
@@ -87,7 +102,9 @@ def session( s ):
 				try:
 					message = "OK"
 					for p in PHOTOS_USERS[user]:
-						message += "|{}".format( p )
+						i=p.getID()
+						d=p.getDescripcion()
+						message += "|{}{}".format( i, d )
 					message += "\r\n"
 				except:
 					sendER( s, "07" )
@@ -102,11 +119,10 @@ def session( s ):
 			if len(lo) == 1:
 				try:
 					message = "OK"
-					for u in USERS[:]:
-						e = USERS.index(u)
-						for a in PHOTOS[e]:
-							if a[1] == lo[0]:
-								message += "|{}".format(a[2])
+					for p in PHOTOS_USERS[:]:
+						for a in p[:]:
+							if a.getID() == lo[0]:
+								message += "|{}|{}".format(a.getTamano(), a.getID())
 					message += "\r\n"
 				except:
 					sendER( s, 5 )
@@ -126,14 +142,8 @@ def session( s ):
 			else:
 				descripcion, photosize, photo = message[4:].split('|')
 				try:
-						foto = (IDENTIFICADORES + descripcion)
-						userphotos = PHOTOS_USERS[user]
-						userphotos = [userphotos, foto]
-						PHOTOS_USERS[user] = userphotos
-						photos = PHOTOS[user]
-						photo1 = [photo, photosize]
-						photos = [photos, photo1]
-						PHOTOS[user] = photos
+						newfoto = Photo(IDENTIFICADORES, descripcion, photosize, photo)
+						PHOTOS_USERS[user].append(newfoto)
 						IDENTIFICADORES += 1
 				except:
 					sendER( s, "09" )
